@@ -104,6 +104,7 @@ def init_driver():
 
 
 def gen_citys(crawl_citys):
+    """ 基于传入的城市列表，生成【起始-目的地】城市组合 """
     # 生成城市组合表
     citys = []
     ytic = list(reversed(crawl_citys))
@@ -117,6 +118,29 @@ def gen_citys(crawl_citys):
 
 
 def generate_flight_dates(n, begin_date, end_date, start_interval, days_interval):
+    """
+    根据指定的起始日期、结束日期或时间间隔，生成一系列航班日期列表。
+
+    按照给定的天数间隔生成查询日期
+    如果指定了结束日期，生成的日期将不会超过该结束日期
+
+    参数：
+        n (int): 生成日期的时间跨度（单位：天），从起始日期开始计算。
+        begin_date (str | None): 起始日期，格式为 "YYYY-MM-DD"。优先级高于 start_interval。
+        end_date (str | None): 结束日期，格式为 "YYYY-MM-DD"。用于限制生成的日期范围。
+        start_interval (int | None): 若未指定 begin_date，则从当前日期起推算的天数偏移量。
+        days_interval (int): 日期间隔天数，例如 7 表示每隔 7 天生成一个日期。
+
+    返回：
+        list[str]: 生成的日期字符串列表，格式为 "YYYY-MM-DD"。
+
+    示例：
+        >>> generate_flight_dates(30, "2025-01-01", None, None, 7)
+        ['2025-01-01', '2025-01-08', '2025-01-15', '2025-01-22', '2025-01-29']
+
+        >>> generate_flight_dates(60, None, "2025-02-10", 3, 10)
+        ['2025-11-11', '2025-11-21', '2025-12-01', '2025-12-11', '2025-12-21', '2025-12-31', '2025-02-10']
+    """
     flight_dates = []
 
     if begin_date:
@@ -146,6 +170,8 @@ def generate_flight_dates(n, begin_date, end_date, start_interval, days_interval
 
 # element_to_be_clickable 函数来替代 expected_conditions.element_to_be_clickable 或 expected_conditions.visibility_of_element_located
 def element_to_be_clickable(element):
+    """ 自定义 Selenium 等待条件函数 """
+
     def check_clickable(driver):
         try:
             if element.is_enabled() and element.is_displayed():
@@ -195,6 +221,7 @@ class DataFetcher(object):
                 )
 
     def remove_btn(self):
+        """ 移除页面一些无用/干扰项 """
         try:
             # WebDriverWait(self.driver, max_wait_time).until(lambda d: d.execute_script('return typeof jQuery !== "undefined"'))
             # 移除提醒
@@ -219,6 +246,7 @@ class DataFetcher(object):
             )
 
     def check_verification_code(self):
+        """ 处理验证码 """
         try:
             # 检查是否有验证码元素，如果有，则需要人工处理
             if (len(self.driver.find_elements(By.ID, "verification-code")) + len(
@@ -272,6 +300,7 @@ class DataFetcher(object):
             return False
 
     def load_cookies(self, account):
+        """ 加载cookies """
         if os.path.exists(COOKIES_FILE):
             try:
                 with open(COOKIES_FILE, "r") as f:
@@ -283,6 +312,7 @@ class DataFetcher(object):
         return None
 
     def save_cookies(self, account, cookies):
+        """ 保存cookies """
         cookies_all = {}
         if os.path.exists(COOKIES_FILE):
             try:
@@ -295,6 +325,7 @@ class DataFetcher(object):
             json.dump(cookies_all, f)
 
     def delete_cookies(self, account):
+        """ 删除cookies """
         try:
             if os.path.exists(COOKIES_FILE):
                 with open(COOKIES_FILE, "r") as f:
@@ -308,6 +339,7 @@ class DataFetcher(object):
             print(f"{time.strftime('%Y-%m-%d_%H-%M-%S')} login: 删除账号 {account} cookies 失败：{e}")
 
     def login(self):
+        """ 账号登陆 """
         if login_allowed:
 
             account = accounts[self.switch_acc % len(accounts)]
