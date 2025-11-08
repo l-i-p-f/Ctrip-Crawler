@@ -133,13 +133,6 @@ def generate_flight_dates(n, begin_date, end_date, start_interval, days_interval
 
     返回：
         list[str]: 生成的日期字符串列表，格式为 "YYYY-MM-DD"。
-
-    示例：
-        >>> generate_flight_dates(30, "2025-01-01", None, None, 7)
-        ['2025-01-01', '2025-01-08', '2025-01-15', '2025-01-22', '2025-01-29']
-
-        >>> generate_flight_dates(60, None, "2025-02-10", 3, 10)
-        ['2025-11-11', '2025-11-21', '2025-12-01', '2025-12-11', '2025-12-21', '2025-12-31', '2025-02-10']
     """
     flight_dates = []
 
