@@ -13,7 +13,7 @@ END_DATE = None
 # 爬取T+N，即N天后
 START_INTERVAL = 1
 
-# 爬取的日期
+# 爬取的天数
 CRAWL_DAYS = 60
 
 # 设置各城市爬取的时间间隔（单位：秒）
@@ -55,3 +55,12 @@ PASSWORDS = ['', '']
 # 本地登录缓存
 COOKIES_FILE = "cookies.json"
 REQUIRED_COOKIES = ["AHeadUserInfo", "DUID", "IsNonUser", "_udl", "cticket", "login_type", "login_uid"]
+
+# 后台运行模式
+ENABLE_BACKEND = False
+
+# 使用浏览器 edge or chrome
+WHICH_DRIVER = "edge"
+
+# chrome驱动路径
+CHROME_DRIVER_PATH = None

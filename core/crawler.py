@@ -7,121 +7,19 @@ import json
 import os
 import threading
 import time
+from datetime import datetime as dt
 
 import magic
 import pandas as pd
-
-from seleniumwire import webdriver
-from datetime import datetime as dt, timedelta
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from constants.setting import *
+from core.utils import init_driver, element_to_be_clickable
 
 
-def init_driver():
-    """ 初始化浏览器配置信息 """
-    # options = webdriver.ChromeOptions() # 创建一个配置对象
-    options = webdriver.EdgeOptions()  # 创建一个配置对象
-    options.add_argument("--incognito")  # 隐身模式（无痕模式）
-    # options.add_argument('--headless')  # 启用无头模式
-    options.add_argument("--no-sandbox")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--disable-blink-features")
-    options.add_argument("--disable-blink-features=AutomationControlled")
-    options.add_argument("--disable-extensions")
-    options.add_argument("--pageLoadStrategy=eager")
-    options.add_argument("--disable-gpu")
-    options.add_argument("--disable-software-rasterizer")
-    options.add_argument("--disable-dev-shm-usage")
-    options.add_argument("--ignore-certificate-errors")
-    options.add_argument("--ignore-certificate-errors-spki-list")
-    options.add_argument("--ignore-ssl-errors")
-    options.add_experimental_option("excludeSwitches", ["enable-automation"])  # 不显示正在受自动化软件控制的提示
-    # 如果需要指定Chrome驱动的路径，取消下面这行的注释并设置正确的路径
-    # chromedriver_path = '/path/to/chromedriver'
-    # 如果需要指定路径，可以加上executable_path参数
-    # driver = webdriver.Chrome(options=options)
-    driver = webdriver.Edge(options=options)
-    driver.maximize_window()
-
-    return driver
-
-
-def gen_citys(crawl_citys):
-    """ 基于传入的城市列表，生成【起始-目的地】城市组合 """
-    # 生成城市组合表
-    citys = []
-    ytic = list(reversed(crawl_citys))
-    for m in crawl_citys:
-        for n in ytic:
-            if m == n:
-                continue
-            else:
-                citys.append([m, n])
-    return citys
-
-
-def generate_flight_dates(n, begin_date, end_date, start_interval, days_interval):
-    """
-    根据指定的起始日期、结束日期或时间间隔，生成一系列航班日期列表。
-
-    按照给定的天数间隔生成查询日期
-    如果指定了结束日期，生成的日期将不会超过该结束日期
-
-    参数：
-        n (int): 生成日期的时间跨度（单位：天），从起始日期开始计算。
-        begin_date (str | None): 起始日期，格式为 "YYYY-MM-DD"。优先级高于 start_interval。
-        end_date (str | None): 结束日期，格式为 "YYYY-MM-DD"。用于限制生成的日期范围。
-        start_interval (int | None): 若未指定 begin_date，则从当前日期起推算的天数偏移量。
-        days_interval (int): 日期间隔天数，例如 7 表示每隔 7 天生成一个日期。
-
-    返回：
-        list[str]: 生成的日期字符串列表，格式为 "YYYY-MM-DD"。
-    """
-    flight_dates = []
-
-    if begin_date:
-        begin_date = dt.strptime(begin_date, "%Y-%m-%d")
-    elif start_interval:
-        begin_date = dt.now() + timedelta(days=start_interval)
-
-    for i in range(0, n, days_interval):
-        flight_date = begin_date + timedelta(days=i)
-
-        flight_dates.append(flight_date.strftime("%Y-%m-%d"))
-
-    # 如果有结束日期，确保生成的日期不超过结束日期
-    if end_date:
-        end_date = dt.strptime(end_date, "%Y-%m-%d")
-        flight_dates = [date for date in flight_dates if dt.strptime(date, "%Y-%m-%d") <= end_date]
-        # 继续生成日期直到达到或超过结束日期
-        while dt.strptime(flight_dates[-1], "%Y-%m-%d") < end_date:
-            next_date = dt.strptime(flight_dates[-1], "%Y-%m-%d") + timedelta(days=days_interval)
-            if next_date <= end_date:
-                flight_dates.append(next_date.strftime("%Y-%m-%d"))
-            else:
-                break
-
-    return flight_dates
-
-
-# element_to_be_clickable 函数来替代 expected_conditions.element_to_be_clickable 或 expected_conditions.visibility_of_element_located
-def element_to_be_clickable(element):
-    """ 自定义 Selenium 等待条件函数 """
-
-    def check_clickable(driver):
-        try:
-            if element.is_enabled() and element.is_displayed():
-                return element  # 当条件满足时，返回元素本身
-            else:
-                return False
-        except:
-            return False
-
-    return check_clickable
 
 
 class DataFetcher(object):

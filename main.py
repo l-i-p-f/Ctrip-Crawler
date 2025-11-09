@@ -2,12 +2,13 @@
 # encoding: utf-8
 
 from core.crawler import *
+from core.utils import init_driver, generate_flight_routes, generate_flight_dates
 
 
 def ctrip_crawler_runner():
     driver = init_driver()
 
-    citys = gen_citys(CRAWL_CITYS)
+    citys = generate_flight_routes(CRAWL_CITYS)
 
     flight_dates = generate_flight_dates(CRAWL_DAYS, BEGIN_DATE, END_DATE, START_INTERVAL, DAYS_INTERVAL)
 
